@@ -1,0 +1,32 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Index{% endblock %}
+
+{% block head %}
+
+{{ super() }}
+
+{% endblock %}
+{% block content %}
+<ol>
+    {% for n in range(patients|length) %}
+    <li><a href="{{ url_for('add_new_reading', target_patient_id=patients[n].id) }}"><strong>{{ patients[n].last_name}},
+        {{patients[n].first_name}} {{patients[n].middle_name_or_initial}}</strong></a> (DOB:
+        {{patients[n].date_of_birth.strftime("%m/%d/%Y")}})
+    </li>
+    <ul>
+        {% for m in range(bp_readings|length) %}
+        {% if bp_readings[m].patient_id == patients[n].id %}
+        <li>{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y, %-I:%M%p')}} | <strong>{{bp_readings[m].systolic_mmhg}}/{{bp_readings[m].diastolic_mmhg}}</strong>
+            | &hearts;{{bp_readings[m].pulse_bpm}} bpm
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</ol>
+
+<div class="d-flex justify-content-end"><a href="{{ url_for('add_new_patient')}}" class="btn btn-primary">Add Patients</a></div>
+
+
+{% endblock %}

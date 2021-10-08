@@ -1,0 +1,27 @@
+
+
+{% extends "layouts/base.html" %}
+
+{% block title %}Index{% endblock %}
+
+{% block head %}
+
+{{ super() }}
+
+{% endblock %}
+{% block content %}
+
+<h2>{{pageheading}}</h2>
+
+{% from 'bootstrap/form.html' import render_form %}
+
+{{ render_form(form) }}
+
+<div class="d-flex justify-content-end"><a href="{{ url_for('get_all_patients')}}" class="justify-content-end btn btn-danger">Cancel</a></div>
+
+
+
+
+
+
+{% endblock %}

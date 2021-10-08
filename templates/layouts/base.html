@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+        {% endblock %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+        <title>{% block title %}{% endblock %} - Ed WestfieldJr</title>
+        {% endblock %}
+    </head>
+    <body>
+
+        <header>
+            {% from 'bootstrap/nav.html' import render_nav_item %}
+
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <a class="navbar-brand" href="{{url_for('get_all_patients')}}">{{project_title}}</a>
+            </nav>
+        </header>
+
+        <main>
+            <div class="container my-3">
+                <!-- Your page content -->
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+
+        <footer>
+            <div class="d-flex navbar navbar-light bg-light justify-content-center fixed-bottom mt-auto ml-auto p-1">&copy;{{created_year}}-{{current_year}} <a href="http://domain.invalid/">Ed Westfield Jr.</a></div>
+        </footer>
+
+        {% block scripts %}
+            <!-- Optional JavaScript -->
+            {{ bootstrap.load_js() }}
+        {% endblock %}
+    </body>
+</html>
