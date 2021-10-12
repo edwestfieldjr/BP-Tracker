@@ -2,7 +2,6 @@
 PROJECT_TITLE = "BP Tracker"
 YEAR_CREATED = 2021
 
-
 import requests
 from flask import Flask, render_template, redirect, request, url_for, flash, abort
 from flask_bootstrap import Bootstrap
@@ -83,6 +82,17 @@ class Patient(db.Model):
     name_suffix = db.Column(db.Unicode(250), unique=False, nullable=True)
     date_of_birth = db.Column(db.Date, unique=False, nullable=False)
     readings = relationship("BloodPressureReading", back_populates="patient")
+    primary_user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    primary_user = relationship("User", back_populates="assigned_patients")
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(100))
+    name = db.Column(db.String(100))
+    assigned_patients = relationship("Patient", back_populates="primary_user")
 
 
 if not os.path.isfile(DB_URI):
@@ -101,35 +111,110 @@ class PatientForm(FlaskForm):
 
 
 class BloodPressureReadingForm(FlaskForm):
-    # time_of_reading = DateTimeField("Time of Reading", validators=[DataRequired()])
+    time_of_reading = DateTimeField("Time of Reading", validators=[DataRequired()])
     systolic_mmhg = IntegerField("Systolic (mmHg)", validators=[DataRequired()])
     diastolic_mmhg = IntegerField("Diastolic (mmHg)", validators=[DataRequired()])
     pulse_bpm = IntegerField("Pulse (bpm)", validators=[DataRequired()])
     submit = SubmitField("Add Reading")
 
 
-# # #
+class RegisterUserForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    submit = SubmitField("REgister")
+
+
+class LoginForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired()])
+    submit = SubmitField("Let Me In!")
+
+
+# LoginMananger inits & fn's
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+# Create admin-only decorator
+def admin_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # If id is not 1 then return abort with 403 error
+        if current_user.is_anonymous or current_user.id != 1:
+            return abort(403)
+        else:
+            return f(*args, **kwargs)
+
+    return decorated_function
+
 
 # ROUTES
-
-# @app.route("/", methods=['GET'])
-# def index():
-#     return render_template("index.html", year=current_time().strftime("%Y"))
-#
-# @app.route("/other", methods=['GET'])
-# def other():
-#     return render_template("index2.html", year=current_time().strftime("%Y"))
-
-PROJECT_TITLE = "BP Tracker"
 
 @app.route('/', methods=['GET'])
 def get_all_patients():
     patients = Patient.query.all()
     bp_readings = BloodPressureReading.query.all()
-    return render_template("index.html", patients=patients, bp_readings=bp_readings, created_year=YEAR_CREATED, current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+    return render_template("index.html", patients=patients, bp_readings=bp_readings, created_year=YEAR_CREATED,
+                           current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+
+
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    form = RegisterUserForm()
+    if form.validate_on_submit():
+        hash_and_salted_password = generate_password_hash(
+            form.password.data,
+            method='pbkdf2:sha256',
+            salt_length=8
+        )
+        new_user = User(
+            email=form.email.data,
+            name=form.name.data,
+            password=hash_and_salted_password,
+        )
+        db.session.add(new_user)
+        db.session.commit()
+
+        # This line will authenticate the user with Flask-Login
+        login_user(new_user)
+
+        return redirect(url_for("get_all_patients"))
+
+    else:
+        return render_template("form.html", form=form, pageheading="Register User")
+
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('get_all_patients'))
+        else:
+            return render_template("form.html", form=form, pageheading="Login")
+    else:
+        return render_template("form.html", form=form, pageheading="Login")
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('get_all_patients'))
 
 
 @app.route("/new-patient", methods=["GET", "POST"])
+@admin_only
 def add_new_patient():
     form = PatientForm()
     if form.validate_on_submit():
@@ -139,20 +224,25 @@ def add_new_patient():
             last_name=form.last_name.data,
             name_suffix=form.name_suffix.data,
             date_of_birth=form.date_of_birth.data,
-            id_name=form.first_name.data.lower()+"_"+form.last_name.data.lower()
+            id_name=form.first_name.data.lower() + "_" + form.last_name.data.lower()
         )
         db.session.add(new_patient)
         db.session.commit()
         return redirect(url_for("get_all_patients"))
     else:
-        return render_template("form.html", form=form, pageheading="Add New Patient", created_year=YEAR_CREATED, current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+        return render_template("form.html", form=form, pageheading="Add New Patient", created_year=YEAR_CREATED,
+                               current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+
 
 @app.route("/new-reading/patient-id-<int:target_patient_id>", methods=["GET", "POST"])
+@admin_only
 def add_new_reading(target_patient_id):
-    form = BloodPressureReadingForm()
+    form = BloodPressureReadingForm(
+        time_of_reading=current_time()
+    )
     if form.validate_on_submit():
         new_bp_reading = BloodPressureReading(
-            time_of_reading=current_time(),
+            time_of_reading=form.time_of_reading.data,
             systolic_mmhg=form.systolic_mmhg.data,
             diastolic_mmhg=form.diastolic_mmhg.data,
             pulse_bpm=form.pulse_bpm.data,
@@ -162,7 +252,9 @@ def add_new_reading(target_patient_id):
         db.session.commit()
         return redirect(url_for("get_all_patients"))
     else:
-        return render_template("form.html", form=form, pageheading="Add New BP Reading", created_year=YEAR_CREATED, current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+        return render_template("form.html", form=form, pageheading="Add New BP Reading", created_year=YEAR_CREATED,
+                               current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+
 
 @app.route("/now", methods=['GET'])  # INDEX ROUTE JUST DIAPLAING TIME-NOW ROUTE
 def time_now():

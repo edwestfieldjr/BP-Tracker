@@ -8,25 +8,62 @@
 
 {% endblock %}
 {% block content %}
-<ol>
-    {% for n in range(patients|length) %}
-    <li><a href="{{ url_for('add_new_reading', target_patient_id=patients[n].id) }}"><strong>{{ patients[n].last_name}},
-        {{patients[n].first_name}} {{patients[n].middle_name_or_initial}}</strong></a> (DOB:
-        {{patients[n].date_of_birth.strftime("%m/%d/%Y")}})
-    </li>
-    <ul>
-        {% for m in range(bp_readings|length) %}
-        {% if bp_readings[m].patient_id == patients[n].id %}
-        <li>{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y, %-I:%M%p')}} | <strong>{{bp_readings[m].systolic_mmhg}}/{{bp_readings[m].diastolic_mmhg}}</strong>
-            | &hearts;{{bp_readings[m].pulse_bpm}} bpm
-        </li>
-        {% endif %}
-        {% endfor %}
-    </ul>
-    {% endfor %}
-</ol>
 
-<div class="d-flex justify-content-end"><a href="{{ url_for('add_new_patient')}}" class="btn btn-primary">Add Patients</a></div>
+
+
+    {% for n in range(patients|length) %}
+
+
+
+
+
+	<table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th colspan="100%"><a href="{{ url_for('add_new_reading', target_patient_id=patients[n].id) }}"><strong>{{ patients[n].last_name}}, {{patients[n].first_name}} {{patients[n].middle_name_or_initial}}</strong></a> (DOB: {{patients[n].date_of_birth.strftime("%m/%d/%Y")}})</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Reading (mmHg)</th>
+                <th>Pulse (bpm)</th>
+            </tr>
+            {% for m in range(bp_readings|length) %}
+            {% if bp_readings[m].patient_id == patients[n].id %}
+            <tr>
+                <td class="align-middle">{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y')}}</td>
+                <td class="align-middle">{{bp_readings[m].time_of_reading.strftime('%-I:%M%p')}}</td>
+                <td class="align-middle">
+                    <table border="0" class="m-0 p-0 table-light bg-transparent">
+                        <tr class="m-0 p-0 bg-transparent">
+                            <td class="m-0 px-1 py-0 bg-transparent text-right align-middle"><span style="font-size:1.5rem"><strong>{{bp_readings[m].systolic_mmhg}}</strong></span></td>
+                            <td class="m-0 px-1 py-0 bg-transparent align-middle">Sys</td>
+                        </tr>
+                        <tr class="m-0 p-0 bg-transparent">
+                            <td class="m-0 px-1 py-0 bg-transparent text-right align-middle"><span style="font-size:1.5rem"><strong>{{bp_readings[m].diastolic_mmhg}}</strong></span></td>
+                            <td class="m-0 px-1 py-0 bg-transparent align-middle">Dia</td>
+                        </tr>
+                    </table>
+                </td>
+                <td class="align-middle">&hearts; {{bp_readings[m].pulse_bpm}}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+
+        </table>
+
+
+
+
+
+{% endfor %}
+
+
+<div class="d-flex justify-content-end"><a href="{{ url_for('add_new_patient')}}" class="btn btn-primary">Add
+    Patients</a></div>
 
 
 {% endblock %}
