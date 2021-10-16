@@ -1,3 +1,4 @@
+
 # # (C)opyright 2021 Edward Francis Westfield Jr. | Standard MIT License
 PROJECT_TITLE = "BP Tracker"
 YEAR_CREATED = 2021
@@ -155,14 +156,15 @@ def admin_only(f):
     return decorated_function
 
 
+
+
 # ROUTES
 
 @app.route('/', methods=['GET'])
 def get_all_patients():
     patients = Patient.query.all()
     bp_readings = BloodPressureReading.query.all()
-    return render_template("index.html", patients=patients, bp_readings=bp_readings, created_year=YEAR_CREATED,
-                           current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+    return render_template("index.html", patients=patients, bp_readings=bp_readings)
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -224,14 +226,14 @@ def add_new_patient():
             last_name=form.last_name.data,
             name_suffix=form.name_suffix.data,
             date_of_birth=form.date_of_birth.data,
-            id_name=form.first_name.data.lower() + "_" + form.last_name.data.lower()
+            id_name=form.first_name.data.lower() + "_" + form.last_name.data.lower(),
+            primary_user=current_user
         )
         db.session.add(new_patient)
         db.session.commit()
         return redirect(url_for("get_all_patients"))
     else:
-        return render_template("form.html", form=form, pageheading="Add New Patient", created_year=YEAR_CREATED,
-                               current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+        return render_template("form.html", form=form, pageheading="Add New Patient")
 
 
 @app.route("/new-reading/patient-id-<int:target_patient_id>", methods=["GET", "POST"])
@@ -252,8 +254,7 @@ def add_new_reading(target_patient_id):
         db.session.commit()
         return redirect(url_for("get_all_patients"))
     else:
-        return render_template("form.html", form=form, pageheading="Add New BP Reading", created_year=YEAR_CREATED,
-                               current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+        return render_template("form.html", form=form, pageheading="Add New BP Reading")
 
 
 @app.route("/now", methods=['GET'])  # INDEX ROUTE JUST DIAPLAING TIME-NOW ROUTE
@@ -262,6 +263,14 @@ def time_now():
     print(type(time_stamp))
     return f"{time_stamp}"
 
+# CONTEXT PROCESSORS: https://flask.palletsprojects.com/en/2.0.x/templating/#context-processors
+
+@app.context_processor
+def inject_into_header():
+    return dict(user=current_user, created_year=YEAR_CREATED, current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+
+
+# Initialize Server
 
 if __name__ == "__main__":
     app.run(debug=True)

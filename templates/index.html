@@ -25,17 +25,18 @@
             </thead>
             <tbody>
             <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Reading (mmHg)</th>
-                <th>Pulse (bpm)</th>
+                <th colspan="2" class="align-middle text-center">Date</th>
+                <th class="align-middle text-right pr-5">Time</th>
+                <th class="align-middle text-left">Reading (mmHg)</th>
+                <th class="align-middle text-center">Pulse (bpm)</th>
             </tr>
             {% for m in range(bp_readings|length) %}
             {% if bp_readings[m].patient_id == patients[n].id %}
             <tr>
-                <td class="align-middle">{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y')}}</td>
-                <td class="align-middle">{{bp_readings[m].time_of_reading.strftime('%-I:%M%p')}}</td>
-                <td class="align-middle">
+                <td class="align-middle text-right">{{bp_readings[m].time_of_reading.strftime('%a')}}</td>
+                <td class="align-middle text-left">{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y')}}</td>
+                <td class="align-middle text-right pr-5">{{bp_readings[m].time_of_reading.strftime('%-I:%M%p')}}</td>
+                <td class="align-middle text-center">
                     <table border="0" class="m-0 p-0 table-light bg-transparent">
                         <tr class="m-0 p-0 bg-transparent">
                             <td class="m-0 px-1 py-0 bg-transparent text-right align-middle"><span style="font-size:1.5rem"><strong>{{bp_readings[m].systolic_mmhg}}</strong></span></td>
@@ -47,7 +48,7 @@
                         </tr>
                     </table>
                 </td>
-                <td class="align-middle">&hearts; {{bp_readings[m].pulse_bpm}}</td>
+                <td class="align-middle text-center"><span class="text-danger">&hearts;</span> {{bp_readings[m].pulse_bpm}}</td>
             </tr>
             {% endif %}
             {% endfor %}
