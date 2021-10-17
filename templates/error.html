@@ -1,0 +1,29 @@
+
+
+{% extends "layouts/base.html" %}
+
+{% block title %} Error{% endblock %}
+
+{% block head %}
+
+{{ super() }}
+
+{% endblock %}
+{% block content %}
+
+<h2>{{ pageheading }}</h2>
+<h1>{{ error_obj.code }}</h1>
+<h3>{{ error_obj.name }}</h3>
+<p>{{ error_obj.description }}</p>
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

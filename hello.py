@@ -1,3 +1,4 @@
+# TODO: Edit
 
 # # (C)opyright 2021 Edward Francis Westfield Jr. | Standard MIT License
 PROJECT_TITLE = "BP Tracker"
@@ -14,6 +15,8 @@ import os
 from datetime import date, datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.exceptions import HTTPException
+
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_gravatar import Gravatar
 from functools import wraps
@@ -122,6 +125,7 @@ class BloodPressureReadingForm(FlaskForm):
 class RegisterUserForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
     submit = SubmitField("REgister")
 
@@ -137,13 +141,18 @@ class LoginForm(FlaskForm):
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# *** ROUTES ***
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+# *** ROUTES ***
+
 # Create admin-only decorator
+
 def admin_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -155,40 +164,69 @@ def admin_only(f):
 
     return decorated_function
 
+# *** ROUTES ***
+
+
+# Create users_only decorator
+
+# def login_is_required_for_base_template(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         # If no logged in return abort with 401 error
+#         if current_user.is_anonymous :
+#             abort_msg = abort(401).
+#             print(f"Error:: {type(abort_msg)}")
+#             return render_template("error.html", abort_msg=abort_msg)
+#         else:
+#             return f(*args, **kwargs)
+#
+#     return decorated_function
 
 
 
-# ROUTES
 
-@app.route('/', methods=['GET'])
+# *** ROUTES ***
+
+@app.route('/all-patients/', methods=['GET'])
+@admin_only
 def get_all_patients():
     patients = Patient.query.all()
     bp_readings = BloodPressureReading.query.all()
-    return render_template("index.html", patients=patients, bp_readings=bp_readings)
+    return render_template("readouts.html", patients=patients, bp_readings=bp_readings)
+
+@app.route('/patient/id/<int:target_patient_id>/', methods=['GET'])
+@login_required
+def get_patient(target_patient_id):
+    patient = Patient.query.get(target_patient_id)
+    patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=target_patient_id).all()
+    return render_template("readouts.html", bp_readings=patient_bp_readings)
+
 
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
     form = RegisterUserForm()
     if form.validate_on_submit():
-        hash_and_salted_password = generate_password_hash(
-            form.password.data,
-            method='pbkdf2:sha256',
-            salt_length=8
-        )
-        new_user = User(
-            email=form.email.data,
-            name=form.name.data,
-            password=hash_and_salted_password,
-        )
-        db.session.add(new_user)
-        db.session.commit()
+        if form.password.data == form.confirm_password.data:
+            hash_and_salted_password = generate_password_hash(
+                form.password.data,
+                method='pbkdf2:sha256',
+                salt_length=8
+            )
+            new_user = User(
+                email=form.email.data,
+                name=form.name.data,
+                password=hash_and_salted_password,
+            )
+            db.session.add(new_user)
+            db.session.commit()
 
-        # This line will authenticate the user with Flask-Login
-        login_user(new_user)
+            # This line will authenticate the user with Flask-Login
+            login_user(new_user)
 
-        return redirect(url_for("get_all_patients"))
-
+            return redirect(url_for("get_all_patients"))
+        else:
+            return("password no match")
     else:
         return render_template("form.html", form=form, pageheading="Register User")
 
@@ -215,8 +253,10 @@ def logout():
     return redirect(url_for('get_all_patients'))
 
 
+
+
 @app.route("/new-patient", methods=["GET", "POST"])
-@admin_only
+@login_required
 def add_new_patient():
     form = PatientForm()
     if form.validate_on_submit():
@@ -237,7 +277,7 @@ def add_new_patient():
 
 
 @app.route("/new-reading/patient-id-<int:target_patient_id>", methods=["GET", "POST"])
-@admin_only
+@login_required
 def add_new_reading(target_patient_id):
     form = BloodPressureReadingForm(
         time_of_reading=current_time()
@@ -266,8 +306,35 @@ def time_now():
 # CONTEXT PROCESSORS: https://flask.palletsprojects.com/en/2.0.x/templating/#context-processors
 
 @app.context_processor
-def inject_into_header():
-    return dict(user=current_user, created_year=YEAR_CREATED, current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+def inject_into_base():
+    patients = Patient.query.filter_by(primary_user_id=current_user.id).all()
+    return dict(user=current_user, patients=patients, created_year=YEAR_CREATED, current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+
+# ERROR HANDLER
+
+@app.errorhandler(Exception)
+def handle_error(e):
+    if isinstance(e, HTTPException):
+        pass
+        code = e.code
+    else:
+        e = {
+            'code': '500',
+            'name': "Internal Server Error",
+            'description': 'That shit fucked up on the insides...'
+        }
+        code = e['code']
+    return render_template('error.html', pageheading="Error:", error_obj=e), code
+
+# @app.errorhandler(error)
+# def page_not_found(e):
+#     # note that we set the 404 status explicitly
+#     return render_template('error.html', error_msg=e), 403
+#
+# @app.errorhandler(401)
+# def page_not_found(e):
+#     # note that we set the 404 status explicitly
+#     return render_template('error.html', error_msg=e), 401
 
 
 # Initialize Server
