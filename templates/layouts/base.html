@@ -1,76 +1,101 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        {% block head %}
-        <!-- Required meta tags -->
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    {% block head %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        {% block styles %}
-            <!-- Bootstrap CSS -->
-            {{ bootstrap.load_css() }}
-        {% endblock %}
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block styles %}
+    <!-- Bootstrap CSS -->
+    {{ bootstrap.load_css() }}
+    {% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
-        <title>{% block title %}{% endblock %} - {{project_title}}</title>
-        {% endblock %}
-    </head>
-    <body>
+    <title>{% block title %}{% endblock %} - {{project_title}}</title>
+    {% endblock %}
+</head>
+<body>
 
-        <header>
-            {% from 'bootstrap/nav.html' import render_nav_item %}
+<header>
+    {% from 'bootstrap/nav.html' import render_nav_item %}
 
-            <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
-                <a class="navbar-brand" href="{{url_for('get_all_patients')}}">{{project_title}}</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
-                        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul class="navbar-nav">
-                        <li class="nav-item active">
-                            {% if user.is_authenticated %}
-                            <a class="nav-link" href="{{url_for('logout')}}" data-toggle="tooltip" title="Logged in as: {{ user.email }}"">Logout <span class="sr-only">(current)</span></a>
-                            {% else %}
-                            <a class="nav-link" href="{{url_for('login')}}" data-toggle="tooltip" title="Some tooltip text!"">Login <span class="sr-only">(current)</span></a>
-                            {% endif %}
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Features</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Pricing</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
-                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Dropdown link
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <a class="dropdown-item" href="#">Action</a>
-                                <a class="dropdown-item" href="#">Another action</a>
-                                <a class="dropdown-item" href="#">Something else here</a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+        <a class="navbar-brand" href="{{url_for('main_page')}}">{{project_title}}</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    {% if user.is_authenticated %}
+                    <a class="nav-link" href="{{url_for('logout')}}" data-toggle="tooltip"
+                       title="Logged in as: {{ user.email }}"">Logout <span class="sr-only">(current)</span></a>
+                    {% else %}
+                    <a class="nav-link" href="{{url_for('login')}}" data-toggle="tooltip" title="Some tooltip text!"">Login
+                    <span class="sr-only">(current)</span></a>
+                    {% endif %}
+                </li>
+                {% if user.id == 1 %} <!-- ADMIN -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        All Users
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        {% if all_users %}
+                        {% for each_user in all_users %}
+                        <a class="dropdown-item" href="#">{{each_user.email}}</a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="dropdown-item"> No Users</div>
+                        {% endif %}
+                    </div>
+                </li>
+                {% endif %}
 
-        <main>
-            <div class="container my-3">
-                <!-- Your page content -->
-                {% block content %}{% endblock %}
-            </div>
-        </main>
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Patients
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        {% if patients %}
+                        {% for patient in patients %}
+                        <a class="dropdown-item" href="{{url_for('get_patient', target_patient_id=patient.id)}}">{{patient.last_name}}, {{patient.first_name}}</a>
+                        {% endfor %}
+                        {% else %}
+                        <div class="dropdown-item"> No patents</div>
+                        {% endif %}
+                        <hr>
+                        <a class="dropdown-item" href="{{url_for('add_new_patient')}}">Add Patient</a>
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+</header>
 
-        <footer>
-            <div class="d-flex navbar navbar-light bg-light justify-content-center fixed-bottom mt-auto ml-auto p-1">&copy;{{created_year}}-{{current_year}} <a href="https://edwestfieldjr.com/">Ed Westfield Jr.</a></div>
-        </footer>
+<main>
 
-        {% block scripts %}
-            <!-- Optional JavaScript -->
-            {{ bootstrap.load_js() }}
-        {% endblock %}
-    </body>
+
+    <div class="container my-3">
+        <!-- Your page content -->
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<footer>
+    <div class="d-flex navbar navbar-light bg-light justify-content-center fixed-bottom mt-auto ml-auto p-1">&copy;{{created_year}}-{{current_year}}
+        &nbsp; <a href="https://edwestfieldjr.com/">Edward Francis Westfield Jr.</a></div>
+</footer>
+
+{% block scripts %}
+<!-- Optional JavaScript -->
+{{ bootstrap.load_js() }}
+{% endblock %}
+</body>
 </html>

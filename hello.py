@@ -1,4 +1,3 @@
-# TODO: Edit
 
 # # (C)opyright 2021 Edward Francis Westfield Jr. | Standard MIT License
 PROJECT_TITLE = "BP Tracker"
@@ -24,7 +23,8 @@ from functools import wraps
 from flask_ckeditor import CKEditor, CKEditorField
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, IntegerField, DateTimeField, DateField
-from wtforms.validators import DataRequired, URL
+from wtforms.validators import ValidationError, DataRequired, InputRequired, Email, EqualTo, URL
+import email_validator
 
 import pandas as pd
 
@@ -105,6 +105,8 @@ if not os.path.isfile(DB_URI):
 
 # FORMS
 
+
+
 class PatientForm(FlaskForm):
     first_name = StringField("First Name", validators=[DataRequired()])
     middle_name_or_initial = StringField("Middle Name/Initial")
@@ -122,24 +124,32 @@ class BloodPressureReadingForm(FlaskForm):
     submit = SubmitField("Add Reading")
 
 
+def validate_user_email_unique(form, field):
+    existing_user = User.query.filter_by(email=field.data).first()
+    if existing_user:
+        if field.data == existing_user.email:
+            raise ValidationError('This user/email address already exists.')
+
+
 class RegisterUserForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired(), Email(message="Please enter a valid email address.", granular_message=False, check_deliverability=False, allow_smtputf8=True, allow_empty_local=False), validate_user_email_unique])
+    password = PasswordField("Password", validators=[DataRequired(), InputRequired(), EqualTo('confirm_password', message='Passwords must match')])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
-    submit = SubmitField("REgister")
+    submit = SubmitField("Register")
 
 
 class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
-    submit = SubmitField("Let Me In!")
+    submit = SubmitField("Login")
 
 
 # LoginMananger inits & fn's
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
 
 # *** ROUTES ***
 
@@ -164,6 +174,7 @@ def admin_only(f):
 
     return decorated_function
 
+
 # *** ROUTES ***
 
 
@@ -183,16 +194,11 @@ def admin_only(f):
 #     return decorated_function
 
 
-
-
 # *** ROUTES ***
 
-@app.route('/all-patients/', methods=['GET'])
-@admin_only
-def get_all_patients():
-    patients = Patient.query.all()
-    bp_readings = BloodPressureReading.query.all()
-    return render_template("readouts.html", patients=patients, bp_readings=bp_readings)
+@app.route('/', methods=['GET'])
+def main_page():
+    return render_template("index.html")
 
 @app.route('/patient/id/<int:target_patient_id>/', methods=['GET'])
 @login_required
@@ -200,7 +206,6 @@ def get_patient(target_patient_id):
     patient = Patient.query.get(target_patient_id)
     patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=target_patient_id).all()
     return render_template("readouts.html", bp_readings=patient_bp_readings)
-
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -223,10 +228,9 @@ def register():
 
             # This line will authenticate the user with Flask-Login
             login_user(new_user)
-
-            return redirect(url_for("get_all_patients"))
+            return redirect(url_for("main_page"))
         else:
-            return("password no match")
+            return redirect(url_for("register"))
     else:
         return render_template("form.html", form=form, pageheading="Register User")
 
@@ -240,7 +244,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
-            return redirect(url_for('get_all_patients'))
+            return redirect(url_for('main_page'))
         else:
             return render_template("form.html", form=form, pageheading="Login")
     else:
@@ -250,9 +254,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('get_all_patients'))
-
-
+    return redirect(url_for('main_page'))
 
 
 @app.route("/new-patient", methods=["GET", "POST"])
@@ -271,7 +273,7 @@ def add_new_patient():
         )
         db.session.add(new_patient)
         db.session.commit()
-        return redirect(url_for("get_all_patients"))
+        return redirect(url_for("main_page"))
     else:
         return render_template("form.html", form=form, pageheading="Add New Patient")
 
@@ -292,7 +294,7 @@ def add_new_reading(target_patient_id):
         )
         db.session.add(new_bp_reading)
         db.session.commit()
-        return redirect(url_for("get_all_patients"))
+        return redirect(url_for("main_page"))
     else:
         return render_template("form.html", form=form, pageheading="Add New BP Reading")
 
@@ -303,12 +305,25 @@ def time_now():
     print(type(time_stamp))
     return f"{time_stamp}"
 
+
 # CONTEXT PROCESSORS: https://flask.palletsprojects.com/en/2.0.x/templating/#context-processors
 
 @app.context_processor
 def inject_into_base():
-    patients = Patient.query.filter_by(primary_user_id=current_user.id).all()
-    return dict(user=current_user, patients=patients, created_year=YEAR_CREATED, current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+    if current_user.is_authenticated:
+        if current_user.id == 1:
+            patients = Patient.query.all()
+        else:
+            patients = Patient.query.filter_by(primary_user_id=current_user.id).all()
+    else:
+        patients = 0
+    if current_user.is_authenticated and current_user.id == 1:
+        all_users = User.query.all()
+    else:
+        all_users = 0
+    return dict(user=current_user, all_users=all_users, patients=patients, created_year=YEAR_CREATED,
+                current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+
 
 # ERROR HANDLER
 
@@ -321,10 +336,11 @@ def handle_error(e):
         e = {
             'code': '500',
             'name': "Internal Server Error",
-            'description': 'That shit fucked up on the insides...'
+            'description': 'An internal server error occured...'
         }
         code = e['code']
     return render_template('error.html', pageheading="Error:", error_obj=e), code
+
 
 # @app.errorhandler(error)
 # def page_not_found(e):
