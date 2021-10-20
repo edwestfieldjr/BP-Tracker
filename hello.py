@@ -124,6 +124,10 @@ class BloodPressureReadingForm(FlaskForm):
     submit = SubmitField("Add Reading")
 
 
+# Custom form validator for 'RegisterUserForm'
+
+
+
 def validate_user_email_unique(form, field):
     existing_user = User.query.filter_by(email=field.data).first()
     if existing_user:
@@ -137,6 +141,8 @@ class RegisterUserForm(FlaskForm):
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
     submit = SubmitField("Register")
+
+# Custom form validators for 'LoginForm' -- Triggered by 'login' routhe
 
 
 class LoginForm(FlaskForm):
@@ -246,7 +252,9 @@ def login():
             login_user(user)
             return redirect(url_for('main_page'))
         else:
-            return render_template("form.html", form=form, pageheading="Login")
+            logout_user()
+            flash("Incorrect Username or Password")
+            return redirect(url_for('login'))
     else:
         return render_template("form.html", form=form, pageheading="Login")
 
@@ -294,7 +302,7 @@ def add_new_reading(target_patient_id):
         )
         db.session.add(new_bp_reading)
         db.session.commit()
-        return redirect(url_for("main_page"))
+        return redirect(url_for("get_patient"), target_patient_id=target_patient_id)
     else:
         return render_template("form.html", form=form, pageheading="Add New BP Reading")
 
@@ -322,7 +330,7 @@ def inject_into_base():
     else:
         all_users = 0
     return dict(user=current_user, all_users=all_users, patients=patients, created_year=YEAR_CREATED,
-                current_year=current_time().strftime("%Y"), project_title=PROJECT_TITLE)
+                current_year=int(current_time().strftime("%Y")), project_title=PROJECT_TITLE)
 
 
 # ERROR HANDLER

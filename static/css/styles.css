@@ -4,5 +4,10 @@
     background-repeat: no-repeat;
     background-size: cover;
     background-filter: grayscale(100%);
+}
 
+@media print {
+    .btn {
+        display: none;
+    }
 }

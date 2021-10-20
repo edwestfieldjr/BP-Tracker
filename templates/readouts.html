@@ -20,7 +20,7 @@
 	<table class="table table-striped">
             <thead class="thead-dark">
                 <tr>
-                    <th colspan="100%"><a href="{{ url_for('add_new_reading', target_patient_id=patients[n].id) }}"><strong>{{ patients[n].last_name}}, {{patients[n].first_name}} {{patients[n].middle_name_or_initial}}</strong></a> (DOB: {{patients[n].date_of_birth.strftime("%m/%d/%Y")}})</th>
+                    <th colspan="100%"><strong>{{ patients[n].last_name}}, {{patients[n].first_name}} {{patients[n].middle_name_or_initial}}</strong> (DOB: {{patients[n].date_of_birth.strftime("%m/%d/%Y")}})<a href="{{ url_for('add_new_reading', target_patient_id=patients[n].id) }}" class="btn btn-danger float-right">Add reading</a></th>
                 </tr>
             </thead>
             <tbody>

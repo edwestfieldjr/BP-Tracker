@@ -1,4 +1,4 @@
-{% extends "layouts/base.html" %}
+{%  extends "layouts/base.html" %}
 
 {% block title %}{{pageheading}}{% endblock %}
 
@@ -11,7 +11,7 @@
 
 {% block content %}
 
-<h1>Welcome to {{project_title}}</h1>
+<h1>Welcome to {{ project_title }} </h1>
 
 
 {% with messages = get_flashed_messages() %}
@@ -25,12 +25,7 @@
 {% endwith %}
 
 
-{% from 'bootstrap/form.html' import render_form %}
 
-{{ render_form(form) }}
-
-<div class="d-flex justify-content-end"><a href="{{ url_for('main_page')}}"
-                                           class="justify-content-end btn btn-danger">Cancel</a></div>
 
 
 {% endblock %}
