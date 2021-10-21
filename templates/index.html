@@ -3,7 +3,6 @@
 {% block title %}{{pageheading}}{% endblock %}
 
 {% block head %}
-
 {{ super() }}
 
 {% endblock %}
@@ -11,7 +10,10 @@
 
 {% block content %}
 
-<h1>Welcome to {{ project_title }} </h1>
+<body class="splash-bg p-0 m-0"></body>
+
+
+<h1 class="text-white">Welcome to {{ project_title }} </h1>
 
 
 {% with messages = get_flashed_messages() %}
