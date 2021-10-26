@@ -13,6 +13,10 @@
 
 <h2>{{pageheading}}</h2>
 
+{% if page_sub_heading %}
+<h5>{{page_sub_heading}}</h5>
+{% endif %}
+
 
 {% with messages = get_flashed_messages() %}
 {% if messages %}

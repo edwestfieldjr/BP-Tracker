@@ -1,6 +1,6 @@
 .splash-bg {
     min-height: 100vh;
-    background: linear-gradient(180deg, rgba(220, 53, 69, 100.0), 60%, rgba(0, 51, 128, 0.3)), url("https://images.unsplash.com/photo-1631815587646-b85a1bb027e1?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80");
+    background: linear-gradient(180deg, rgba(220, 53, 69, 100.0), rgba(0, 51, 128, 0.7)), url("https://images.unsplash.com/photo-1631815587646-b85a1bb027e1?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80");
     background-position: center;
     background-repeat: no-repeat;
     background-size: center;

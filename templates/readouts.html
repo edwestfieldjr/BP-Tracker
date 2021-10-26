@@ -11,7 +11,6 @@
 
 
 
-    {% for n in range(patients|length) %}
 
 
 
@@ -20,31 +19,45 @@
 	<table class="table table-striped">
             <thead class="thead-dark">
                 <tr>
-                    <th colspan="100%"><strong>{{ patients[n].last_name}}, {{patients[n].first_name}} {{patients[n].middle_name_or_initial}}</strong> (DOB: {{patients[n].date_of_birth.strftime("%m/%d/%Y")}})<a href="{{ url_for('add_new_reading', target_patient_id=patients[n].id) }}" class="btn btn-danger float-right">Add reading</a></th>
+                    <th colspan="100%"><strong>{{ patient.last_name}}, {{patient.first_name}} {{patient.middle_name_or_initial}}</strong> (DOB: {{patient.date_of_birth.strftime("%m/%d/%Y")}})<a href="{{ url_for('add_new_reading', target_patient_id=patient.id) }}" class="btn btn-danger float-right">Add reading</a></th>
                 </tr>
             </thead>
             <tbody>
             <tr>
-                <th colspan="2" class="align-middle text-center">Date</th>
+                <th colspan="3" class="align-middle text-center">Date</th>
                 <th class="align-middle text-right pr-5">Time</th>
                 <th class="align-middle text-left">Reading (mmHg)</th>
                 <th class="align-middle text-center">Pulse (bpm)</th>
             </tr>
             {% for m in range(bp_readings|length) %}
-            {% if bp_readings[m].patient_id == patients[n].id %}
+            {% if bp_readings[m].patient_id == patient.id %}
             <tr>
-                <td class="align-middle text-right">{{bp_readings[m].time_of_reading.strftime('%a')}}</td>
-                <td class="align-middle text-left">{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y')}}</td>
-                <td class="align-middle text-right pr-5">{{bp_readings[m].time_of_reading.strftime('%-I:%M%p')}}</td>
                 <td class="align-middle text-center">
                     <table border="0" class="m-0 p-0 table-light bg-transparent">
-                        <tr class="m-0 p-0 bg-transparent">
-                            <td class="m-0 px-1 py-0 bg-transparent text-right align-middle"><span style="font-size:1.5rem"><strong>{{bp_readings[m].systolic_mmhg}}</strong></span></td>
-                            <td class="m-0 px-1 py-0 bg-transparent align-middle">Sys</td>
+                        <tr border="0" class="m-0 p-0 table-light bg-transparent">
+                            <td border="0" class="m-0 p-0 table-light bg-transparent">
+                                <a class="btn btn-sm btn-block btn-outline-primary" href="{{ url_for('edit_reading', target_patient_id=patient.id, target_reading_id=bp_readings[m].id) }}">Edit</a>
+                            </td>
                         </tr>
-                        <tr class="m-0 p-0 bg-transparent">
-                            <td class="m-0 px-1 py-0 bg-transparent text-right align-middle"><span style="font-size:1.5rem"><strong>{{bp_readings[m].diastolic_mmhg}}</strong></span></td>
-                            <td class="m-0 px-1 py-0 bg-transparent align-middle">Dia</td>
+                        <tr border="0" class="m-0 p-0 table-light bg-transparent">
+                            <td border="0" class="m-0 p-0 table-light bg-transparent">
+                                <a class="btn btn-sm btn-block btn-outline-danger" href="{{ url_for('delete_reading', target_patient_id=patient.id, target_reading_id=bp_readings[m].id) }}">Delete</a>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td class="align-middle text-center">{{bp_readings[m].time_of_reading.strftime('%a')}}</td>
+                <td class="align-middle text-left">{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y')}}</td>
+                <td class="align-middle text-right pr-5">{{bp_readings[m].time_of_reading.strftime('%-I:%M%p')}}</td>
+                <td class="align-middle text-left">
+                    <table border="0" class="m-0 p-0 table-light bg-transparent">
+                        <tr border="0" class="m-0 p-0 table-light bg-transparent">
+                            <td border="0" class="m-0 p-0 table-light bg-transparent text-right align-middle"><span style="font-size:1.5rem"><strong>{{bp_readings[m].systolic_mmhg}}</strong></span></td>
+                            <td border="0" class="m-0 px-1 py-0 bg-transparent align-middle">Sys</td>
+                        </tr>
+                        <tr border="0" class="m-0 p-0 table-light bg-transparent">
+                            <td border="0" class="m-0 p-0 table-light bg-transparent text-right align-middle"><span style="font-size:1.5rem"><strong>{{bp_readings[m].diastolic_mmhg}}</strong></span></td>
+                            <td border="0" class="m-0 px-1 py-0 bg-transparent align-middle">Dia</td>
                         </tr>
                     </table>
                 </td>
@@ -60,7 +73,6 @@
 
 
 
-{% endfor %}
 
 
 

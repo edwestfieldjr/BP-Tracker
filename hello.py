@@ -1,4 +1,3 @@
-
 # # (C)opyright 2021 Edward Francis Westfield Jr. | Standard MIT License
 PROJECT_TITLE = "BP Tracker"
 YEAR_CREATED = 2021
@@ -106,7 +105,6 @@ if not os.path.isfile(DB_URI):
 # FORMS
 
 
-
 class PatientForm(FlaskForm):
     first_name = StringField("First Name", validators=[DataRequired()])
     middle_name_or_initial = StringField("Middle Name/Initial")
@@ -121,11 +119,10 @@ class BloodPressureReadingForm(FlaskForm):
     systolic_mmhg = IntegerField("Systolic (mmHg)", validators=[DataRequired()])
     diastolic_mmhg = IntegerField("Diastolic (mmHg)", validators=[DataRequired()])
     pulse_bpm = IntegerField("Pulse (bpm)", validators=[DataRequired()])
-    submit = SubmitField("Add Reading")
+    submit = SubmitField("Add/Update Reading")
 
 
 # Custom form validator for 'RegisterUserForm'
-
 
 
 def validate_user_email_unique(form, field):
@@ -136,11 +133,16 @@ def validate_user_email_unique(form, field):
 
 
 class RegisterUserForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired(), Email(message="Please enter a valid email address.", granular_message=False, check_deliverability=False, allow_smtputf8=True, allow_empty_local=False), validate_user_email_unique])
-    password = PasswordField("Password", validators=[DataRequired(), InputRequired(), EqualTo('confirm_password', message='Passwords must match')])
+    email = StringField("Email", validators=[DataRequired(), Email(message="Please enter a valid email address.",
+                                                                   granular_message=False, check_deliverability=False,
+                                                                   allow_smtputf8=True, allow_empty_local=False),
+                                             validate_user_email_unique])
+    password = PasswordField("Password", validators=[DataRequired(), InputRequired(),
+                                                     EqualTo('confirm_password', message='Passwords must match')])
     confirm_password = PasswordField("Confirm Password", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
     submit = SubmitField("Register")
+
 
 # Custom form validators for 'LoginForm' -- Triggered by 'login' routhe
 
@@ -206,12 +208,13 @@ def admin_only(f):
 def main_page():
     return render_template("index.html")
 
-@app.route('/patient/id/<int:target_patient_id>/', methods=['GET'])
+
+@app.route('/patient/id/<int:target_patient_id>/')
 @login_required
 def get_patient(target_patient_id):
     patient = Patient.query.get(target_patient_id)
-    patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=target_patient_id).all()
-    return render_template("readouts.html", bp_readings=patient_bp_readings)
+    patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=patient.id).all()
+    return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient)
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -286,7 +289,7 @@ def add_new_patient():
         return render_template("form.html", form=form, pageheading="Add New Patient")
 
 
-@app.route("/new-reading/patient-id-<int:target_patient_id>", methods=["GET", "POST"])
+@app.route("/new-reading/patient/id/<int:target_patient_id>", methods=["GET", "POST"])
 @login_required
 def add_new_reading(target_patient_id):
     form = BloodPressureReadingForm(
@@ -302,14 +305,51 @@ def add_new_reading(target_patient_id):
         )
         db.session.add(new_bp_reading)
         db.session.commit()
-        return redirect(url_for("get_patient"), target_patient_id=target_patient_id)
+        print(type(new_bp_reading.patient_id))
+        return redirect(url_for('get_patient'), target_patient_id=new_bp_reading.patient_id)
     else:
         return render_template("form.html", form=form, pageheading="Add New BP Reading")
 
 
+@app.route("/edit-reading/patient/id/<int:target_patient_id>/reading-id/<int:target_reading_id>", methods=["GET", "POST"])
+@login_required
+def edit_reading(target_reading_id, target_patient_id):
+    patient = Patient.query.get(target_patient_id)
+    reading_to_edit = BloodPressureReading.query.get(target_reading_id)
+    print(f"send: {patient.last_name} {reading_to_edit.time_of_reading}")
+    form = BloodPressureReadingForm(
+        time_of_reading=reading_to_edit.time_of_reading,
+        systolic_mmhg=reading_to_edit.systolic_mmhg,
+        diastolic_mmhg=reading_to_edit.diastolic_mmhg,
+        pulse_bpm=reading_to_edit.pulse_bpm
+    )
+    if form.validate_on_submit():
+        reading_to_edit.time_of_reading = form.time_of_reading.data
+        reading_to_edit.systolic_mmhg = form.systolic_mmhg.data
+        reading_to_edit.diastolic_mmhg = form.diastolic_mmhg.data
+        reading_to_edit.pulse_bpm = form.pulse_bpm.data
+        db.session.commit()
+        return redirect(url_for('get_patient', target_patient_id=patient.id))
+        # return redirect(url_for("main_page"))
+    else:
+        return render_template("form.html", form=form, pageheading=f"Edit New BP Reading",
+                               page_sub_heading=f"Patient: {patient.last_name}, {patient.first_name}")
+
+
+@app.route("/delete-reading/patient/id/<int:target_patient_id>/reading-id/<int:target_reading_id>", methods=["GET"])
+@login_required
+def delete_reading(target_reading_id, target_patient_id):
+    patient = Patient.query.get(target_patient_id)
+    reading_to_delete = BloodPressureReading.query.get(target_reading_id)
+    db.session.delete(reading_to_delete)
+    db.session.commit()
+    return redirect(url_for('get_patient'))
+    # , target_patient_id=target_patient_id)
+
+
 @app.route("/now", methods=['GET'])  # INDEX ROUTE JUST DIAPLAING TIME-NOW ROUTE
 def time_now():
-    time_stamp = current_time()  # fuction is called when get request is made
+    time_stamp = current_time()  # function is called when get request is made
     print(type(time_stamp))
     return f"{time_stamp}"
 

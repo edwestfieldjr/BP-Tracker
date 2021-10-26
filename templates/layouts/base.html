@@ -20,7 +20,7 @@
 <header>
     {% from 'bootstrap/nav.html' import render_nav_item %}
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger sticky-top">
         <a class="navbar-brand" href="{{url_for('main_page')}}">{{project_title}}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@
                     <a class="nav-link" href="{{url_for('logout')}}" data-toggle="tooltip"
                        title="Logged in as: {{ user.email }}"">Logged in as: {{ user.email }}<span class="sr-only">(current)</span></a>
                     {% else %}
-                    <a class="nav-link" href="{{url_for('login')}}" data-toggle="tooltip" title="Some tooltip text!"">Welcome, Guest
+                    <a class="nav-link" href="{{url_for('register')}}" data-toggle="tooltip" title="Click here to register a new account"">Welcome, Guest
                     <span class="sr-only">(current)</span></a>
                     {% endif %}
                 </li>
@@ -79,7 +79,7 @@
                     <a class="nav-link" href="{{url_for('logout')}}" data-toggle="tooltip"
                        title="Logged in as: {{ user.email }}"">Logout <span class="sr-only">(current)</span></a>
                     {% else %}
-                    <a class="nav-link" href="{{url_for('login')}}" data-toggle="tooltip" title="Some tooltip text!"">Login
+                    <a class="nav-link" href="{{url_for('login')}}" data-toggle="tooltip" title="Some tooltip text!">Login
                     <span class="sr-only">(current)</span></a>
                     {% endif %}
                 </li>
@@ -95,6 +95,7 @@
         <!-- Your page content -->
         {% block content %}{% endblock %}
     </div>
+    <div class="py-5 my-1"></div>
 </main>
 
 <footer">
