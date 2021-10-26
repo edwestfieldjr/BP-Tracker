@@ -86,7 +86,7 @@ class Patient(db.Model):
     date_of_birth = db.Column(db.Date, unique=False, nullable=False)
     readings = relationship("BloodPressureReading", back_populates="patient")
     primary_user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    primary_user = relationship("User", back_populates="assigned_patients")
+    # primary_user = relationship("User", back_populates="assigned_patients")
 
 
 class User(UserMixin, db.Model):
@@ -95,7 +95,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
-    assigned_patients = relationship("Patient", back_populates="primary_user")
+    # assigned_patients = relationship("Patient", back_populates="primary_user")
 
 
 if not os.path.isfile(DB_URI):
@@ -208,13 +208,21 @@ def admin_only(f):
 def main_page():
     return render_template("index.html")
 
+@app.route('/user/id/<int:target_user_id>/')
+@login_required
+def show_user(target_user_id):
+    displayed_user = User.query.get(target_user_id)
+    users_patients = Patient.query.filter_by(primary_user_id=displayed_user.id).all()
+    return render_template("user.html", displayed_user=displayed_user, users_patients=users_patients)
 
 @app.route('/patient/id/<int:target_patient_id>/')
 @login_required
 def get_patient(target_patient_id):
     patient = Patient.query.get(target_patient_id)
     patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=patient.id).all()
-    return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient)
+    displayed_user = User.query.filter_by(id=patient.primary_user_id).first()
+    return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, pageheading=f"BP Reading Log for:",
+                               page_sub_heading=f"Readings taken By: {displayed_user.name}")
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -306,7 +314,7 @@ def add_new_reading(target_patient_id):
         db.session.add(new_bp_reading)
         db.session.commit()
         print(type(new_bp_reading.patient_id))
-        return redirect(url_for('get_patient'), target_patient_id=new_bp_reading.patient_id)
+        return redirect(url_for('get_patient', target_patient_id=new_bp_reading.patient_id))
     else:
         return render_template("form.html", form=form, pageheading="Add New BP Reading")
 
@@ -343,7 +351,7 @@ def delete_reading(target_reading_id, target_patient_id):
     reading_to_delete = BloodPressureReading.query.get(target_reading_id)
     db.session.delete(reading_to_delete)
     db.session.commit()
-    return redirect(url_for('get_patient'))
+    return redirect(url_for('get_patient', target_patient_id=patient.id))
     # , target_patient_id=target_patient_id)
 
 
@@ -360,16 +368,16 @@ def time_now():
 def inject_into_base():
     if current_user.is_authenticated:
         if current_user.id == 1:
-            patients = Patient.query.all()
+            all_patients = Patient.query.all()
         else:
-            patients = Patient.query.filter_by(primary_user_id=current_user.id).all()
+            all_patients = Patient.query.filter_by(primary_user_id=current_user.id).all()
     else:
         patients = 0
     if current_user.is_authenticated and current_user.id == 1:
         all_users = User.query.all()
     else:
         all_users = 0
-    return dict(user=current_user, all_users=all_users, patients=patients, created_year=YEAR_CREATED,
+    return dict(user=current_user, all_users=all_users, patients=all_patients, created_year=YEAR_CREATED,
                 current_year=int(current_time().strftime("%Y")), project_title=PROJECT_TITLE)
 
 

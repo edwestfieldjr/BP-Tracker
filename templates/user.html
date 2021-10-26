@@ -1,0 +1,31 @@
+{%  extends "layouts/base.html" %}
+
+{% block title %}{{pageheading}}{% endblock %}
+
+{% block head %}
+{{ super() }}
+
+{% endblock %}
+
+
+{% block content %}
+
+<h1> User Profile </h1> {
+<h1>{{ displayed_user.name }}</h1>>
+
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="flashes">
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+
+
+
+
+{% endblock %}
