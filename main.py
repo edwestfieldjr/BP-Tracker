@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy import Column, Integer, DateTime, Date
 from sqlalchemy.orm import relationship
 import os
+import re
 from datetime import date, datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -48,7 +49,18 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 # CONNECT TO DB
 # SQLite database for development
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///tracker.db")
+uri = str()
+
+if os.getenv("DATABASE_URL"):
+    uri = os.getenv("DATABASE_URL")  # or other relevant config var
+    if uri and uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(uri, "sqlite:///tracker.db")
+
+
+
+
 # Switch to PostgreSQL for deployment - this will use sqlite database if run locally
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///portfolio.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
