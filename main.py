@@ -115,7 +115,8 @@ class User(UserMixin, db.Model):
     # assigned_patients = relationship("Patient", back_populates="primary_user")
 
 
-db.create_all()
+if db == None:
+    db.create_all()
 
 
 # FORMS
