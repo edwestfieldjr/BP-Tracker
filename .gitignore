@@ -152,3 +152,6 @@ fabric.properties
 
 # SQLite Text DB's
 *.db
+
+# output graphics
+*.png

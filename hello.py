@@ -236,8 +236,8 @@ def get_patient(target_patient_id):
     print(dia_list)
     print(date_list)
 
-    plt.plot(date_list, sys_list, 'b-')
-    plt.plot(date_list, dia_list, 'r--')
+    plt.plot(date_list, sys_list, 'b.')
+    plt.plot(date_list, dia_list, 'r.')
     # plt.plot(date_list, bpm_list, 'r.')
     plt.ylim([40, 200])
     plt.xlim([date_list[0], date_list[-1]])
