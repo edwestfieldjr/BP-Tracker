@@ -47,8 +47,7 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 
 # CONNECT TO DB
 # SQLite database for development
-# DB_URI = os.environ.get("DB_URI")
-# app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_URI}'
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 # Switch to PostgreSQL for deployment - this will use sqlite database if run locally
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///portfolio.db")
@@ -104,8 +103,7 @@ class User(UserMixin, db.Model):
     # assigned_patients = relationship("Patient", back_populates="primary_user")
 
 
-if not os.path.isfile(DB_URI):
-    db.create_all()
+db.create_all()
 
 
 # FORMS
