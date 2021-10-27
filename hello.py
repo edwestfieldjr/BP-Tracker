@@ -3,7 +3,7 @@ PROJECT_TITLE = "BP Tracker"
 YEAR_CREATED = 2021
 
 import requests
-from flask import Flask, render_template, redirect, request, url_for, flash, abort
+from flask import Flask, render_template, redirect, request, url_for, flash, abort, Response
 from flask_bootstrap import Bootstrap
 
 from flask_sqlalchemy import SQLAlchemy
@@ -26,6 +26,11 @@ from wtforms.validators import ValidationError, DataRequired, InputRequired, Ema
 import email_validator
 
 import pandas as pd
+import matplotlib.pyplot as plt
+import io
+import random
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 # Current time generator function
@@ -221,8 +226,33 @@ def get_patient(target_patient_id):
     patient = Patient.query.get(target_patient_id)
     patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=patient.id).all()
     displayed_user = User.query.filter_by(id=patient.primary_user_id).first()
+
+    print(len(patient_bp_readings))
+    sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
+    dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
+    bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
+    date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
+    print(sys_list)
+    print(dia_list)
+    print(date_list)
+
+    plt.plot(date_list, sys_list, 'b-')
+    plt.plot(date_list, dia_list, 'r--')
+    # plt.plot(date_list, bpm_list, 'r.')
+    plt.ylim([40, 200])
+    plt.xlim([date_list[0], date_list[-1]])
+    plt.xticks(rotation=15)
+    plt.tight_layout()
+    plt.legend(['Systolic', 'Diastolic'])
+    # # # plt.plot(date_list, dia_list)
+    # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
+    plt.savefig('static/images/new_plot.png', dpi=300)
+    plt.close()
+
+
     return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, pageheading=f"BP Reading Log for:",
-                               page_sub_heading=f"Readings taken By: {displayed_user.name}")
+                               page_sub_heading=f"Readings taken By: {displayed_user.name}", graph_url='/static/images/new_plot.png')
+
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -372,7 +402,7 @@ def inject_into_base():
         else:
             all_patients = Patient.query.filter_by(primary_user_id=current_user.id).all()
     else:
-        patients = 0
+        all_patients = 0
     if current_user.is_authenticated and current_user.id == 1:
         all_users = User.query.all()
     else:

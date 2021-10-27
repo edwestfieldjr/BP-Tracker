@@ -9,21 +9,27 @@
 {% endblock %}
 {% block content %}
 
+<h4>{{pageheading}}</h4>
+<h1>{{patient.last_name}}, {{patient.first_name}}</h1>
+
+<div class="m-0 p-0">
+    <img src={{graph_url}} alt="Chart" height="100%" width="100%">
+</div>
+
 
 <table class="table table-striped table-hover" border="0">
     <thead class="thead-dark">
     <tr>
-        <th colspan="100%"><strong>{{ patient.last_name}}, {{patient.first_name}}
-            {{patient.middle_name_or_initial}}</strong> (DOB: {{patient.date_of_birth.strftime("%m/%d/%Y")}})<a
-                href="{{ url_for('add_new_reading', target_patient_id=patient.id) }}"
-                class="btn btn-danger float-right">Add reading</a></th>
+        <th colspan="100%"><strong>{{ patient.last_name}}, {{patient.first_name}} {{patient.middle_name_or_initial}}</strong> (DOB: {{patient.date_of_birth.strftime("%m/%d/%Y")}})<a href="{{ url_for('add_new_reading', target_patient_id=patient.id) }}" class="btn btn-danger float-right">Add reading</a></th>
     </tr>
-    <td>{{page_sub_heading}}</td>
+    <tr>
+        <td colspan="100%">{{page_sub_heading}}</td>
     </tr>
     </thead>
     <tbody>
     <tr>
-        <th colspan="3" class="align-middle text-center">Date</th>
+        <th colspan="1" class="align-middle text-center">m</th>
+        <th colspan="2" class="align-middle text-center">Date</th>
         <th class="align-middle text-right pr-5">Time</th>
         <th class="align-middle text-center">Reading (mmHg)</th>
         <th class="align-middle text-center">Pulse (bpm)</th>
@@ -42,9 +48,7 @@
                 <tr class="m-0 p-0 table-light bg-transparent">
                     <td class="m-0 p-0 table-light bg-transparent">
 
-                        <button type="button" class="btn btn-sm btn-block btn-outline-danger" data-toggle="modal" data-target="#exampleModal">
-                            Delete
-                        </button>
+                        <button type="button" class="btn btn-sm btn-block btn-outline-danger" data-toggle="modal" data-target="#exampleModal">Delete</button>
 
                         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
                              aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -58,6 +62,8 @@
                                     </div>
                                     <div class="modal-body">
                                         Are you sure you want to delete this record?
+                                        <li>Patient: {{patient.name}}</li>
+                                        <li>Time of reading: {{bp_readings[m].time_of_reading.strftime('%a')}}{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y')}}{{bp_readings[m].time_of_reading.strftime('%-I:%M %p')}}</li>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel
@@ -67,14 +73,11 @@
                                 </div>
                             </div>
                         </div>
-
-
-
                     </td>
                 </tr>
             </table>
         </td>
-        <td class="align-middle text-center">{{bp_readings[m].time_of_reading.strftime('%a')}}</td>
+        <td class="align-middle text-right">{{bp_readings[m].time_of_reading.strftime('%a')}}</td>
         <td class="align-middle text-left">{{bp_readings[m].time_of_reading.strftime('%m/%d/%Y')}}</td>
         <td class="align-middle text-right pr-5">{{bp_readings[m].time_of_reading.strftime('%-I:%M %p')}}</td>
         <td class="align-middle text-center">
