@@ -49,7 +49,7 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 # CONNECT TO DB
 # SQLite database for development
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL"), "sqlite:///tracker.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///tracker.db")
 
 
 
