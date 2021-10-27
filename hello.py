@@ -227,15 +227,12 @@ def get_patient(target_patient_id):
     patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=patient.id).all()
     displayed_user = User.query.filter_by(id=patient.primary_user_id).first()
 
+    # # Create pyplot graph...
     print(len(patient_bp_readings))
     sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
     dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
     bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
     date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
-    print(sys_list)
-    print(dia_list)
-    print(date_list)
-
     plt.plot(date_list, sys_list, 'b.')
     plt.plot(date_list, dia_list, 'r.')
     # plt.plot(date_list, bpm_list, 'r.')
@@ -248,6 +245,8 @@ def get_patient(target_patient_id):
     # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
     plt.savefig('static/images/new_plot.png', dpi=300)
     plt.close()
+    # # Create pyplot graph...
+
 
 
     return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, pageheading=f"BP Reading Log for:",
