@@ -48,7 +48,7 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 # CONNECT TO DB
 # SQLite database for development
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "DATABASE_URL_2")
 # Switch to PostgreSQL for deployment - this will use sqlite database if run locally
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///portfolio.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
