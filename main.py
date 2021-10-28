@@ -232,28 +232,28 @@ def get_patient(target_patient_id):
     # # Create pyplot graph... This should be a separate function, I'm just being 'lazy'
     has_image = False
     if patient_bp_readings:
-        print(len(patient_bp_readings))
-        sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
-        dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
-        bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
-        date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
-        plt.plot(date_list, sys_list, 'b.')
-        plt.plot(date_list, dia_list, 'r.')
-        # plt.plot(date_list, bpm_list, 'r.')
-        plt.ylim([40, 200])
-        plt.xlim([date_list[0], date_list[-1]])
-        plt.xticks(rotation=15)
-        plt.tight_layout()
-        plt.legend(['Systolic', 'Diastolic'])
-        # # # plt.plot(date_list, dia_list)
-        # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
-        plt.savefig('static/images/new_plot.png', dpi=300)
-        plt.close()
-        has_image = True
-    elif os.path.exists('static/images/new_plot.png'):
-        os.remove('static/images/new_plot.png')
-        has_image = False
-        # # Create pyplot graph...
+    #     print(len(patient_bp_readings))
+    #     sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
+    #     dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
+    #     bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
+    #     date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
+    #     plt.plot(date_list, sys_list, 'b.')
+    #     plt.plot(date_list, dia_list, 'r.')
+    #     # plt.plot(date_list, bpm_list, 'r.')
+    #     plt.ylim([40, 200])
+    #     plt.xlim([date_list[0], date_list[-1]])
+    #     plt.xticks(rotation=15)
+    #     plt.tight_layout()
+    #     plt.legend(['Systolic', 'Diastolic'])
+    #     # # # plt.plot(date_list, dia_list)
+    #     # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
+    #     plt.savefig('static/images/new_plot.png', dpi=300)
+    #     plt.close()
+    #     has_image = True
+    # elif os.path.exists('static/images/new_plot.png'):
+    #     os.remove('static/images/new_plot.png')
+    #     has_image = False
+    #     # # Create pyplot graph...
 
 
 
