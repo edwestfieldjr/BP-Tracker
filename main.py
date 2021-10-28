@@ -52,7 +52,7 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 uri = os.environ.get("DATABASE_URL")
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
-print(f"current database database url: {uri}")
+print(f"current database url: {uri}")
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -94,7 +94,7 @@ class Patient(db.Model):
     date_of_birth = db.Column(db.Date, unique=False, nullable=False)
     readings = relationship("BloodPressureReading", back_populates="patient")
     primary_user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    # primary_user = relationship("User", back_populates="assigned_patients")
+    primary_user = relationship("User", back_populates="assigned_patients")
 
 
 class User(UserMixin, db.Model):
@@ -103,7 +103,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
-    # assigned_patients = relationship("Patient", back_populates="primary_user")
+    assigned_patients = relationship("Patient", back_populates="primary_user")
 
 
 db.create_all()
@@ -229,30 +229,36 @@ def get_patient(target_patient_id):
     patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=patient.id).all()
     displayed_user = User.query.filter_by(id=patient.primary_user_id).first()
 
-    # # Create pyplot graph...
-    print(len(patient_bp_readings))
-    sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
-    dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
-    bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
-    date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
-    plt.plot(date_list, sys_list, 'b.')
-    plt.plot(date_list, dia_list, 'r.')
-    # plt.plot(date_list, bpm_list, 'r.')
-    plt.ylim([40, 200])
-    plt.xlim([date_list[0], date_list[-1]])
-    plt.xticks(rotation=15)
-    plt.tight_layout()
-    plt.legend(['Systolic', 'Diastolic'])
-    # # # plt.plot(date_list, dia_list)
-    # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
-    plt.savefig('static/images/new_plot.png', dpi=300)
-    plt.close()
-    # # Create pyplot graph...
+    # # Create pyplot graph... This should be a separate function, I'm just being 'lazy'
+    has_image = False
+    if patient_bp_readings:
+        print(len(patient_bp_readings))
+        sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
+        dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
+        bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
+        date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
+        plt.plot(date_list, sys_list, 'b.')
+        plt.plot(date_list, dia_list, 'r.')
+        # plt.plot(date_list, bpm_list, 'r.')
+        plt.ylim([40, 200])
+        plt.xlim([date_list[0], date_list[-1]])
+        plt.xticks(rotation=15)
+        plt.tight_layout()
+        plt.legend(['Systolic', 'Diastolic'])
+        # # # plt.plot(date_list, dia_list)
+        # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
+        plt.savefig('static/images/new_plot.png', dpi=300)
+        plt.close()
+        has_image = True
+    elif os.path.exists('static/images/new_plot.png'):
+        os.remove('static/images/new_plot.png')
+        has_image = False
+        # # Create pyplot graph...
 
 
 
     return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, pageheading=f"BP Reading Log for:",
-                               page_sub_heading=f"Readings taken By: {displayed_user.name}", graph_url='/static/images/new_plot.png')
+                               page_sub_heading=f"Readings taken By: {displayed_user.name}", has_image=has_image, graph_url='/static/images/new_plot.png')
 
 
 
@@ -319,7 +325,7 @@ def add_new_patient():
             name_suffix=form.name_suffix.data,
             date_of_birth=form.date_of_birth.data,
             id_name=form.first_name.data.lower() + "_" + form.last_name.data.lower(),
-            primary_user=current_user
+            primary_user_id=current_user.id
         )
         db.session.add(new_patient)
         db.session.commit()
