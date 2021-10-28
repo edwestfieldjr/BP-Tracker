@@ -231,7 +231,7 @@ def get_patient(target_patient_id):
 
     # # Create pyplot graph... This should be a separate function, I'm just being 'lazy'
     has_image = False
-    if patient_bp_readings:
+    # if patient_bp_readings:
     #     print(len(patient_bp_readings))
     #     sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
     #     dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
