@@ -198,7 +198,7 @@ def admin_only(f):
 
 @app.route('/', methods=['GET'])
 def main_page():
-    return render_template("index.html")
+    return render_template("index.html", page_title="Home")
 
 
 @app.route('/user/id/<int:target_user_id>/')
@@ -207,7 +207,7 @@ def show_user(target_user_id):
     if current_user.id == target_user_id or current_user.id == 1: # only shows patients under user supervision - admin_only wrapper does not work here
         displayed_user = User.query.get(target_user_id)
         users_patients = Patient.query.filter_by(primary_user_id=displayed_user.id).all()
-        return render_template("user.html", displayed_user=displayed_user, users_patients=users_patients)
+        return render_template("user.html", page_title=f"User Profile: {displayed_user.name}", displayed_user=displayed_user, users_patients=users_patients)
     else:
         return abort(403)
 
@@ -249,7 +249,7 @@ def get_patient(target_patient_id):
         #     # # Create pyplot graph...
 
 
-        return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, pageheading=f"BP Reading Log for:",
+        return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, page_title=f"BP Log: {patient.last_name}, {patient.first_name}", pageheading=f"Blood Pressue Reading Log for:",
                                    page_sub_heading=f"Readings taken By: {displayed_user.name}", has_image=has_image, graph_url='/static/images/new_plot.png')
 
     else:
