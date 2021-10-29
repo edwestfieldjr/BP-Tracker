@@ -202,8 +202,9 @@ def main_page():
 
 
 @app.route('/user/id/<int:target_user_id>/')
+@login_required
 def show_user(target_user_id):
-    if current_user.id == target_user_id or current_user.id == 1: # admin_only wrapper does not work here
+    if current_user.id == target_user_id or current_user.id == 1: # only shows patients under user supervision - admin_only wrapper does not work here
         displayed_user = User.query.get(target_user_id)
         users_patients = Patient.query.filter_by(primary_user_id=displayed_user.id).all()
         return render_template("user.html", displayed_user=displayed_user, users_patients=users_patients)
@@ -215,40 +216,44 @@ def show_user(target_user_id):
 @login_required
 def get_patient(target_patient_id):
     patient = Patient.query.get(target_patient_id)
-    patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=patient.id).all()
-    displayed_user = User.query.filter_by(id=patient.primary_user_id).first()
+    if current_user.id == patient.primary_user_id or current_user.id == 1: # admin_only wrapper does not work here
 
-    # # Create pyplot graph... This should be a separate function, I'm just being 'lazy'
-    has_image = False
-    # if patient_bp_readings:
-    #     print(len(patient_bp_readings))
-    #     sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
-    #     dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
-    #     bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
-    #     date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
-    #     plt.plot(date_list, sys_list, 'b.')
-    #     plt.plot(date_list, dia_list, 'r.')
-    #     # plt.plot(date_list, bpm_list, 'r.')
-    #     plt.ylim([40, 200])
-    #     plt.xlim([date_list[0], date_list[-1]])
-    #     plt.xticks(rotation=15)
-    #     plt.tight_layout()
-    #     plt.legend(['Systolic', 'Diastolic'])
-    #     # # # plt.plot(date_list, dia_list)
-    #     # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
-    #     plt.savefig('static/images/new_plot.png', dpi=300)
-    #     plt.close()
-    #     has_image = True
-    # elif os.path.exists('static/images/new_plot.png'):
-    #     os.remove('static/images/new_plot.png')
-    #     has_image = False
-    #     # # Create pyplot graph...
+        patient_bp_readings = BloodPressureReading.query.filter_by(patient_id=patient.id).all()
+        displayed_user = User.query.filter_by(id=patient.primary_user_id).first()
+
+        # # Create pyplot graph... This should be a separate function,
+        # # Shut down this funtionality for Heroku version for the time being a/o 2021-10-28
+        has_image = False
+        # if patient_bp_readings:
+        #     print(len(patient_bp_readings))
+        #     sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
+        #     dia_list = list(patient_bp_readings[x].diastolic_mmhg for x in range(len(patient_bp_readings)))
+        #     bpm_list = list(patient_bp_readings[x].pulse_bpm for x in range(len(patient_bp_readings)))
+        #     date_list = list(patient_bp_readings[x].time_of_reading for x in range(len(patient_bp_readings)))
+        #     plt.plot(date_list, sys_list, 'b.')
+        #     plt.plot(date_list, dia_list, 'r.')
+        #     # plt.plot(date_list, bpm_list, 'r.')
+        #     plt.ylim([40, 200])
+        #     plt.xlim([date_list[0], date_list[-1]])
+        #     plt.xticks(rotation=15)
+        #     plt.tight_layout()
+        #     plt.legend(['Systolic', 'Diastolic'])
+        #     # # # plt.plot(date_list, dia_list)
+        #     # # # # # ,[patient_bp_readings.systolic_mmhg for reading in patient_bp_readings])
+        #     plt.savefig('static/images/new_plot.png', dpi=300)
+        #     plt.close()
+        #     has_image = True
+        # elif os.path.exists('static/images/new_plot.png'):
+        #     os.remove('static/images/new_plot.png')
+        #     has_image = False
+        #     # # Create pyplot graph...
 
 
+        return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, pageheading=f"BP Reading Log for:",
+                                   page_sub_heading=f"Readings taken By: {displayed_user.name}", has_image=has_image, graph_url='/static/images/new_plot.png')
 
-    return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, pageheading=f"BP Reading Log for:",
-                               page_sub_heading=f"Readings taken By: {displayed_user.name}", has_image=has_image, graph_url='/static/images/new_plot.png')
-
+    else:
+        return abort(403)
 
 
 @app.route('/register', methods=["GET", "POST"])
