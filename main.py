@@ -190,23 +190,8 @@ def admin_only(f):
     return decorated_function
 
 
-# *** ROUTES ***
 
 
-# Create users_only decorator
-
-# def login_is_required_for_base_template(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         # If no logged in return abort with 401 error
-#         if current_user.is_anonymous :
-#             abort_msg = abort(401).
-#             print(f"Error:: {type(abort_msg)}")
-#             return render_template("error.html", abort_msg=abort_msg)
-#         else:
-#             return f(*args, **kwargs)
-#
-#     return decorated_function
 
 
 # *** ROUTES ***
@@ -215,12 +200,16 @@ def admin_only(f):
 def main_page():
     return render_template("index.html")
 
+
 @app.route('/user/id/<int:target_user_id>/')
-@login_required
 def show_user(target_user_id):
-    displayed_user = User.query.get(target_user_id)
-    users_patients = Patient.query.filter_by(primary_user_id=displayed_user.id).all()
-    return render_template("user.html", displayed_user=displayed_user, users_patients=users_patients)
+    if current_user.id == target_user_id or current_user.id == 1: # admin_only wrapper does not work here
+        displayed_user = User.query.get(target_user_id)
+        users_patients = Patient.query.filter_by(primary_user_id=displayed_user.id).all()
+        return render_template("user.html", displayed_user=displayed_user, users_patients=users_patients)
+    else:
+        return abort(403)
+
 
 @app.route('/patient/id/<int:target_patient_id>/')
 @login_required

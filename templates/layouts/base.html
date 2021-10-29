@@ -30,8 +30,8 @@
             <ul class="navbar-nav">
                 <li class="nav-item">
                     {% if user.is_authenticated %}
-                    <a class="nav-link" href="{{url_for('logout')}}" data-toggle="tooltip"
-                       title="Logged in as: {{ user.email }}"">Logged in as: {{ user.email }}<span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{{url_for('show_user', target_user_id=user.id)}}" data-toggle="tooltip"
+                       title="User ID: {{ user.id }}"">Logged in as: {{ user.email }}<span class="sr-only">(current)</span></a>
                     {% else %}
                     <a class="nav-link" href="{{url_for('register')}}" data-toggle="tooltip" title="Click here to register a new account"">Welcome, Guest
                     <span class="sr-only">(current)</span></a>
@@ -46,7 +46,7 @@
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         {% if all_users %}
                         {% for each_user in all_users %}
-                        <a class="dropdown-item" href="#">{{each_user.email}}</a>
+                        <a class="dropdown-item" href="{{url_for('show_user', target_user_id=each_user.id)}}">{{each_user.email}}</a>
                         {% endfor %}
                         {% else %}
                         <div class="dropdown-item"> No Users</div>
@@ -103,7 +103,7 @@
         {% if (current_year) > (created_year) %}
         {{current_year}}
         {% endif %}
-        &nbsp; <a href="https://edwestfieldjr.com/">Edward Francis Westfield Jr.</a>
+        &nbsp; <a href="https://edwestfieldjr.com/">Edward Francis Westfield Jr.</a>&nbsp;|&nbsp;<strong>For Testing Purposes Only</strong>&nbsp;|&nbsp;<a href="https://github.com/edwestfieldjr/BP-Tracker">Github Repo</a>
     </div>
 </footer>
 

@@ -2,6 +2,10 @@
 
 A Python/Flask/SQL blood pressure reading database and tracker. 
 
+## For Testing Purposes Only
+
+This web application has yet to be deemed compliant with exiting patient privacy laws (HIPAA, PHIPA, etc.) and is not advised for use with actual patient information. 
+
 ## MIT License
 
 Copyright © 2021 Edward Francis Westfield Jr.
