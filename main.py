@@ -249,7 +249,7 @@ def get_patient(target_patient_id):
         #     # # Create pyplot graph...
 
 
-        return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, page_title=f"BP Log: {patient.last_name}, {patient.first_name}", pageheading=f"Blood Pressue Reading Log for:",
+        return render_template("readouts.html", bp_readings=patient_bp_readings, patient=patient, page_title=f"BP Log: {patient.last_name}, {patient.first_name}", pageheading=f"Blood Pressure Reading Log for:",
                                    page_sub_heading=f"Readings taken By: {displayed_user.name}", has_image=has_image, graph_url='/static/images/new_plot.png')
 
     else:
