@@ -3,9 +3,9 @@
 A Python/Flask/SQL-based blood pressure reading database. 
 
 ## For Testing Purposes Only 
-###Do Not Upload Actual Patient Information 
+###Not Recommended for Actual Patient Information 
 
-This demonstration web-based application has yet to be evaluated for compliance with current patient privacy laws (HIPAA, PHIPA, DPA, GDPR, etc.) It is not advised for use with actual patient information. For now, please use ficticuous  names, dates of birth, and reading information when using this database. 
+This demonstration web-based application has yet to be evaluated for compliance with current patient privacy laws (HIPAA, PHIPA, DPA, GDPR, etc.) It is not advised for use with actual patient information. For the tiem being, please enter only ficticuous names and identifying information when using this database. 
 
 ## Live Demo
 
