@@ -3,9 +3,9 @@
 A Python/Flask/SQL-based blood pressure reading database. 
 
 ## For Testing Purposes Only 
-###Not Recommended for Actual Patient Information 
+### Not Recommended for Actual Patient Information 
 
-This demonstration web-based application has yet to be evaluated for compliance with current patient privacy laws (HIPAA, PHIPA, DPA, GDPR, etc.) It is not advised for use with actual patient information. For the tiem being, please enter only ficticuous names and identifying information when using this database. 
+This demonstration web-based application has yet to be evaluated for compliance with current patient privacy laws (HIPAA, PHIPA, DPA, GDPR, etc.) It is not advised for use with actual patient information. For the time being, please enter only fictitious names and identifying information when using this database. 
 
 ## Live Demo
 
@@ -15,7 +15,7 @@ https://bp-tracker-2021.herokuapp.com/
 
 * Click 'Welcome, Guest' to resister a new login account; 
 * Create a patient profile ('Add Patient' in the 'Patients' menu); 
-  * **THIS IS A TESTING DEMO: Do not add actual patient information (only use fictitious information);**
+  * **THIS IS A TESTING DEMO: Please enter fictitious patient information only (e.g., ‘Doe, John; Doe, Jane’);**
   * _Patient's 'Date of Birth' must be entered in 'datetime.date' format, e.g.: 'yyyy-mm-dd' (the form defaults to current time)_
 * Go to the patient's name in the 'Patients' menu;
 * In the patient's 'Blood Pressure Reading Log' page, click 'Add Reading' to a blood pressure reading;
