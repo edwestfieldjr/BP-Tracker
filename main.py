@@ -1,4 +1,7 @@
 # # (C)opyright 2021 Edward Francis Westfield Jr. | Standard MIT License
+# # v0.1.1-alpha Revised April 2022 
+
+
 PROJECT_TITLE = "BP Tracker"
 YEAR_CREATED = 2021
 
@@ -50,8 +53,12 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 # SQLite database for development
 
 uri = os.environ.get("DATABASE_URL")
-if uri.startswith("postgres://"):
-    uri = uri.replace("postgres://", "postgresql://", 1)
+if uri == None:
+    uri = 'sqlite:///tracker.db'
+else:
+    if uri.startswith("postgres://"):
+        uri = uri.replace("postgres://", "postgresql://", 1)
+
 print(f"current database url: {uri}")
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -222,8 +229,8 @@ def get_patient(target_patient_id):
         displayed_user = User.query.filter_by(id=patient.primary_user_id).first()
 
         # # Create pyplot graph... This should be a separate function,
-        # # Shut down this funtionality for Heroku version for the time being a/o 2021-10-28
-        has_image = False
+        # # Shut down this functionality for Heroku version for the time being a/o 2021-10-28
+        has_image = False # Necessary pass-tru variable
         # if patient_bp_readings:
         #     print(len(patient_bp_readings))
         #     sys_list = list(patient_bp_readings[x].systolic_mmhg for x in range(len(patient_bp_readings)))
@@ -344,7 +351,6 @@ def add_new_reading(target_patient_id):
         )
         db.session.add(new_bp_reading)
         db.session.commit()
-        print(type(new_bp_reading.patient_id))
         return redirect(url_for('get_patient', target_patient_id=new_bp_reading.patient_id))
     else:
         return render_template("form.html", form=form, pageheading="Add New BP Reading")
