@@ -1,4 +1,8 @@
 # # (C)opyright 2021 Edward Francis Westfield Jr. | Standard MIT License
+
+# # v0.2.1-beta Revised January 2023 
+
+
 PROJECT_TITLE = "BP Tracker"
 YEAR_CREATED = 2021
 
