@@ -1,11 +1,10 @@
-# BP Monitor 
+# BP Tracker 
 
 A Python/Flask/SQL-based blood pressure reading database. 
 
 ## For Testing Purposes Only 
-###Do Not Upload Actual Patient Information 
 
-This demonstration web-based application has yet to be evaluated for compliance with current patient privacy laws (HIPAA, PHIPA, DPA, GDPR, etc.) It is not advised for use with actual patient information. For now, please use ficticuous  names, dates of birth, and reading information when using this database. 
+This demonstration web-based application has yet to be evaluated for compliance with current patient privacy laws (HIPAA, PHIPA, DPA, GDPR, etc.). It is not advised for use with actual patient information; For now, please enter only fictitious data when using/testing this database. 
 
 ## Live Demo
 
@@ -15,7 +14,7 @@ https://bp-tracker-2021.herokuapp.com/
 
 * Click 'Welcome, Guest' to resister a new login account; 
 * Create a patient profile ('Add Patient' in the 'Patients' menu); 
-  * **THIS IS A TESTING DEMO: Do not add actual patient information (only use fictitious information);**
+  * **THIS IS A TESTING DEMO: Please enter fictitious patient information only (e.g., ‘Doe, John; Doe, Jane’);**
   * _Patient's 'Date of Birth' must be entered in 'datetime.date' format, e.g.: 'yyyy-mm-dd' (the form defaults to current time)_
 * Go to the patient's name in the 'Patients' menu;
 * In the patient's 'Blood Pressure Reading Log' page, click 'Add Reading' to a blood pressure reading;
@@ -30,7 +29,7 @@ This demonstration version of this web-based application currently uses a Heroku
 
 ## MIT License
 
-Copyright © 2021 [Edward Francis Westfield Jr.](https://www.edwestfieldjr.com/)
+Copyright © 2021-22 [Edward Francis Westfield Jr.](https://www.edwestfieldjr.com/)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
