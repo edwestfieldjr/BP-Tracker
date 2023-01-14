@@ -154,6 +154,7 @@ cython_debug/
 # SQLite Test DB's
 *.db
 instance/
+instance/*.db
 
 # output graphics
 *.png
