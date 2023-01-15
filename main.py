@@ -8,7 +8,7 @@ YEAR_CREATED = 2021
 
 import requests
 from flask import Flask, render_template, redirect, request, url_for, flash, abort, Response
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap4 as Bootstrap
 
 from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy import Column, Integer, DateTime, Date
@@ -22,7 +22,7 @@ from werkzeug.exceptions import HTTPException
 
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from flask_gravatar import Gravatar
-from functools import wraps
+# from functools import wrap
 
 from flask_ckeditor import CKEditor, CKEditorField
 from flask_wtf import FlaskForm
