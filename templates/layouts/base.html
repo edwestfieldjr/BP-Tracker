@@ -101,22 +101,27 @@
 <footer">
     <div class="d-flex navbar navbar-light bg-light justify-content-center fixed-bottom p-2">
         <div class="container d-block justify-content-center text-center">
-            <div class="row">
-                <div class="col-12">
-                    &copy; {{created_year}}
+       
+              <div class="row p-0 m-0">
+                <div class="col-12 col-lg-4 text-secondary small px-1 m-o text-centert text-lg-left">
+                  &copy; 
                     {% if (current_year) > (created_year) %}
-                    {{current_year}}
+                      {% if (current_year) - (created_year) < 100 %}
+                        {{created_year}}-{{(current_year|string)[2:]}}
+                      {% else %}
+                        {{created_year}}-{{(current_year|string)}}
+                      {% endif %}
+                    {% else %}
+                      {{created_year}}
                     {% endif %}
-                    <a href="https://edwestfieldjr.com/">Edward Francis Westfield Jr.</a>
+                    <a href="https://edwestfieldjr.com/">Ed<span class="d-none d-lg-inline">ward Francis</span> Westfield Jr.</a>
                 </div>
-            </div>
-            <div class="row p-0 m-o">
-                <div class="col-12 col-sm-6 text-secondary small px-1 m-o text-centert text-sm-right">
+                <div class="col-12 col-lg-4 text-secondary px-1 m-o text-center">
                     <strong class="text-danger">For Testing Purposes Only</strong>
                 </div>
-                <div class="col-12 col-sm-6 text-secondary small px-1 m-o text-center text-sm-left">
+                <div class="col-12 col-lg-4 text-secondary small px-1 m-o text-center text-lg-right">
 
-                    Visit the&nbsp;</span><a href="https://github.com/edwestfieldjr/BP-Tracker">GitHub repository</a> for more information</span>
+                  <span class="d-none d-lg-inline">Visit the&nbsp;</span><a href="https://github.com/edwestfieldjr/BP-Tracker">GitHub Repository</a><span class="d-none d-lg-inline">&nbsp;for more information.</span>
                 </div>
             </div>
         </div>
